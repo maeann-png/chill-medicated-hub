@@ -566,10 +566,10 @@
   ];
 
   // ------------------------------------------------------------------
-  // COGS rate used for the modeled net profit on the cards.
-  // Matches the rate used inside each state's dashboard.
+  // Profit margin used for the modeled net profit on the cards.
+  // Net Profit = Net Revenue × PROFIT_RATE.
   // ------------------------------------------------------------------
-  const COGS_RATE = 0.45;
+  const PROFIT_RATE = 0.45;
 
   // --- Helpers --------------------------------------------------------
   const fmtMoney = (cents) => {
@@ -631,7 +631,7 @@
           <div class="stat-row">
             <div class="stat-label">Modeled Net Profit</div>
             <div class="stat-value loading" data-stat="profit" data-code="${s.code}">Loading…</div>
-            <div class="stat-note">Revenue × ${Math.round((1 - COGS_RATE) * 100)}%</div>
+            <div class="stat-note">Revenue × ${Math.round(PROFIT_RATE * 100)}%</div>
           </div>
         </div>
       `
@@ -679,7 +679,7 @@
       .then(r => r.json())
       .then(data => {
         const revenueCents = computeRevenueCents(data);
-        const profitCents = Math.round(revenueCents * (1 - COGS_RATE));
+        const profitCents = Math.round(revenueCents * PROFIT_RATE);
 
         const revEl = document.querySelector(`[data-stat="revenue"][data-code="${s.code}"]`);
         const profEl = document.querySelector(`[data-stat="profit"][data-code="${s.code}"]`);
