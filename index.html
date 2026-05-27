@@ -566,9 +566,10 @@
 
   // ------------------------------------------------------------------
   // Profit margin used for the modeled net profit on the cards.
-  // Net Profit = Net Revenue × PROFIT_RATE.
+  // Matches the dashboards: Net Profit = Revenue × (1 − COGS rate),
+  // where COGS is modeled at 45%, so profit = revenue × 55%.
   // ------------------------------------------------------------------
-  const PROFIT_RATE = 0.45;
+  const PROFIT_RATE = 0.55;
 
   // --- Helpers --------------------------------------------------------
   const fmtMoney = (cents) => {
@@ -630,7 +631,7 @@
           <div class="stat-row">
             <div class="stat-label">Modeled Net Profit</div>
             <div class="stat-value loading" data-stat="profit" data-code="${s.code}">Loading…</div>
-            <div class="stat-note">Revenue × ${Math.round(PROFIT_RATE * 100)}%</div>
+            <div class="stat-note">modeled · 45% COGS</div>
           </div>
         </div>
       `
