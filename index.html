@@ -587,9 +587,16 @@
     if (!payload || !Array.isArray(payload.rows)) return 0;
     let cents = 0;
     for (const row of payload.rows) {
+      // Sample detection: MA/NJ use an `is_sample` field; MO has none, so we
+      // also catch SAMP/SAMPLE in the product name as a safety net (matches
+      // the dashboards' own logic).
       const sample = row.is_sample;
       if (sample === true || (typeof sample === 'string' && /yes|true/i.test(sample))) continue;
-      cents += Number(row.line_total_raw) || 0;
+      if (/samp(le)?/i.test(String(row.product_name || ''))) continue;
+      // Line total, in CENTS. MA/NJ report it as `line_total_raw`; MO reports
+      // it as `order_price` (e.g. 50625 = $506.25). Fall back so both work.
+      const raw = (row.line_total_raw != null) ? row.line_total_raw : row.order_price;
+      cents += Number(raw) || 0;
     }
     return cents;
   }
