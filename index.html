@@ -340,7 +340,7 @@
   .stat-value {
     font-family: 'Fraunces', serif;
     font-weight: 400;
-    font-size: 25px;
+    font-size: 40px;
     letter-spacing: -0.01em;
     line-height: 1;
     color: var(--text);
@@ -566,13 +566,6 @@
     },
   ];
 
-  // ------------------------------------------------------------------
-  // Profit margin used for the modeled net profit on the cards.
-  // Matches the dashboards: Net Profit = Revenue × (1 − COGS rate),
-  // where COGS is modeled at 45%, so profit = revenue × 55%.
-  // ------------------------------------------------------------------
-  const PROFIT_RATE = 0.55;
-
   // --- Helpers --------------------------------------------------------
   const fmtMoney = (cents) => {
     const v = cents / 100;
@@ -642,11 +635,6 @@
             <div class="stat-label">Net Revenue</div>
             <div class="stat-value loading" data-stat="revenue" data-code="${s.code}">Loading…</div>
           </div>
-          <div class="stat-row">
-            <div class="stat-label">Modeled Net Profit</div>
-            <div class="stat-value loading" data-stat="profit" data-code="${s.code}">Loading…</div>
-            <div class="stat-note">modeled · 45% COGS</div>
-          </div>
         </div>
       `
       : `
@@ -683,7 +671,7 @@
   document.getElementById('footer-live').textContent = String(liveCount).padStart(2, '0');
 
   // --- Fetch live numbers --------------------------------------------
-  // For each live state, fetch sales_data.json, compute revenue + profit,
+  // For each live state, fetch sales_data.json, compute net revenue,
   // and update the card. We cache-bust with a timestamp so we always
   // see fresh data on page load.
   STATES.forEach(s => {
@@ -693,19 +681,14 @@
       .then(r => r.json())
       .then(data => {
         const revenueCents = computeRevenueCents(data);
-        const profitCents = Math.round(revenueCents * PROFIT_RATE);
 
         const revEl = document.querySelector(`[data-stat="revenue"][data-code="${s.code}"]`);
-        const profEl = document.querySelector(`[data-stat="profit"][data-code="${s.code}"]`);
         if (revEl)  { revEl.textContent = fmtMoney(revenueCents); revEl.classList.remove('loading'); revEl.classList.add('gradient'); }
-        if (profEl) { profEl.textContent = fmtMoney(profitCents); profEl.classList.remove('loading'); }
       })
       .catch(err => {
         console.warn(`Could not load ${s.code} data:`, err);
         const revEl = document.querySelector(`[data-stat="revenue"][data-code="${s.code}"]`);
-        const profEl = document.querySelector(`[data-stat="profit"][data-code="${s.code}"]`);
         if (revEl)  { revEl.textContent = 'N/A'; revEl.classList.remove('loading'); }
-        if (profEl) { profEl.textContent = 'N/A'; profEl.classList.remove('loading'); }
       });
   });
 </script>
