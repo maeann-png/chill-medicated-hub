@@ -595,12 +595,23 @@
       if (sample === true || (typeof sample === 'string' && /yes|true/i.test(sample))) continue;
       if (/samp(le)?/i.test(String(row.product_name || ''))) continue;
       // Line total, in CENTS. MA/NJ report it as `line_total_raw`; MO reports
-      // it as `order_price` (e.g. 50625 = $506.25). MI has neither — it reports
-      // per-line `revenue` in DOLLARS (e.g. 350.34), so we convert to cents.
+      // it as `order_price` (e.g. 50625 = $506.25).
       if (row.line_total_raw != null || row.order_price != null) {
         const raw = (row.line_total_raw != null) ? row.line_total_raw : row.order_price;
         cents += Number(raw) || 0;
+      } else if (row.gross != null) {
+        // MI: mirror the Michigan dashboard's LeafLink-aligned net EXACTLY.
+        // Net = gross minus the order's discount, but the discount only counts
+        // once the order is "Complete" (pending/shipped show at gross until they
+        // finalize). Do NOT use the feed's raw `revenue` field here — it's
+        // computed differently and runs ~$138K low across the book, which made
+        // the card read $21.17M while the dashboard read $21.31M.
+        const gross = Number(row.gross) || 0;
+        const complete = String(row.order_status || '').toLowerCase() === 'complete';
+        const discount = complete ? (Number(row.discount) || 0) : 0;
+        cents += Math.round((gross - discount) * 100);
       } else if (row.revenue != null) {
+        // Fallback for any state that only carries a per-line `revenue` (dollars).
         cents += Math.round((Number(row.revenue) || 0) * 100);
       }
     }
