@@ -1,0 +1,5 @@
+src
+  wrangler.toml
+  .assetsignore
+  node_modules
+  .git
