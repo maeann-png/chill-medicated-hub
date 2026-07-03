@@ -1,0 +1,14 @@
+# wrangler.toml — Chill Medicated hub Worker (sales-intelligence)
+name = "sales-intelligence"
+main = "src/index.js"
+compatibility_date = "2026-07-03"
+
+# Keep the variables/secrets you set in the Cloudflare dashboard.
+# Without this, `wrangler deploy` wipes AUTH_USER / AUTH_PASS every time
+# (which is what caused the "Auth not configured." error).
+keep_vars = true
+
+[assets]
+directory = "."          # static files (index.html, logo.png, ...) live at the repo root
+binding = "ASSETS"        # lets the Worker serve files via env.ASSETS.fetch()
+run_worker_first = true   # run the login check BEFORE serving any file
